@@ -1,0 +1,31 @@
+from bottle import post, run, route, response, request
+import json
+import dm
+import urllib, urllib2
+
+def enable_cors(fn):
+	def _enable_cors(*args, **kwargs):
+		# set CORS headers
+		response.headers['Access-Control-Allow-Origin'] = '*'
+		response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+		response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+
+		if request.method != 'OPTIONS':
+			# actual request; reply with the actual response
+			return fn(*args, **kwargs)
+
+	return _enable_cors
+
+@post('/korean_dm', method=['OPTIONS', 'POST'])
+@enable_cors
+def do_request():
+	if not request.content_type.startswith('application/json'):
+		return 'Content-type:application/json is required.'
+
+	request_str = request.body.read()
+	data = json.loads(request_str)
+
+	return dm.disambiguation(data)
+
+dm.initialize()
+run(host='110.76.83.179', port=32510)

@@ -1,0 +1,3 @@
+﻿select count(?s) where {
+    ?s [[X]] ?o .
+}
